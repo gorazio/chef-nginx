@@ -3,13 +3,12 @@
 # Recipe:: configuration
 #
 
-[node["nginx"]["dir"], node["nginx"]["log_dir"]].each do |dir|
-  directory dir do
-    owner "root"
-    group "root"
-    mode "0755"
-    recursive true
-  end
+file "/etc/nginx/sites-enabled/default" do
+  action :delete
+end
+
+file "/etc/nginx/sites-available/default" do
+  action :delete
 end
 
 cookbook_file "#{node["nginx"]["dir"]}/mime.types" do
@@ -18,6 +17,12 @@ cookbook_file "#{node["nginx"]["dir"]}/mime.types" do
   group "root"
   mode  "0644"
   notifies :restart, "service[nginx]"
+end
+
+directory node["nginx"]["log_dir"] do
+  owner "root"
+  group "root"
+  recursive true
 end
 
 template "nginx.conf" do
@@ -38,19 +43,9 @@ end
   end
 end
 
-nginx_site "default" do
-  host node["hostname"]
-  root "/var/www/nginx-default"
-  not_if { node["nginx"]["skip_default_site"] }
-end
-
-# ensure default site is removed if necessary
-%w[enabled available].each do |dir|
-  file "#{node["nginx"]["dir"]}/sites-#{dir}/default" do
-    action :delete
-    only_if { node["nginx"]["skip_default_site"] }
-    notifies :restart, "service[nginx]"
-  end
+nginx_site "000-default" do
+  template_source "site_default.erb"
+  only_if { node["nginx"]["default_site"] }
 end
 
 node["nginx"]["conf_files"].each do |config_file|
@@ -72,4 +67,17 @@ template "#{node["nginx"]["dir"]}/conf.d/nginx_status.conf" do
   notifies :restart, "service[nginx]"
   variables(port: node["nginx"]["status_port"])
   only_if { node["nginx"]["enable_stub_status"] }
+end
+
+logrotate_app 'nginx' do
+  cookbook  'logrotate'
+  path      '/var/log/nginx/*.log'
+  frequency 'daily'
+  rotate    30
+  create    '0640 www-data adm'
+  options   ['missingok', 'delaycompress', 'notifempty']
+  prerotate '    if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+      run-parts /etc/logrotate.d/httpd-prerotate; \
+    fi \ '
+  postrotate '    invoke-rc.d nginx rotate >/dev/null 2>&1'
 end

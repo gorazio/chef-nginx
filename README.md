@@ -27,6 +27,7 @@ recipes should run on these platforms without error:
 
 This cookbook requires Ruby 1.9+ and is tested against:
 
+* 1.9.3
 * 2.0.0
 * 2.1.2
 
@@ -64,7 +65,6 @@ Attribute Parameters (only used with the `create` action):
 * `location` - basic [location](http://nginx.org/en/docs/http/ngx_http_core_module.html#location) block configuration, defaults to 'try_files $uri $uri/'
 * `phpfpm` - inserts a basic php fpm handler for .php files if true, defaults to false
 * `access_log` - enable or disable the access log, defaults to true
-* `custom_data` - hash of extra data for any custom things you might throw into your override template, defaults to an empty hash
 * `template_cookbook` - allows you to override the template used with your own. Set this to your cookbook name and create a template named 'site.erb', defaults to 'nginx'
 * `template_source` - override for the name of the template from the default 'site.erb'
 
@@ -107,21 +107,6 @@ end
 ```
 
 This would create a php-fpm enabled virtual host (provided you have php-fpm installed) with a default rewrite to index.php and enable it
-
-```ruby
-my_data = { 'env' => 'production' }
-
-nginx_site "example.com" do
-  host "example.com www.example.com"
-  root "/var/www/example.com"
-  custom_data my_data
-  template_cookbook 'my_cookbook'
-  template_source 'my.conf.erb'
-  action [:create, :enable]
-end
-```
-
-This would create a virtual host using your own custom template ´my.conf.erb´ in the cookbook ´my_cookbook´. The contents of ´my_data´ will be available in the template, thus writing ´@custom_data['environment']´ in your template will yield ´production´ in this example. And as with the previous examples `:enable` will make the site enabled.
 
 
 ## Attributes
@@ -281,11 +266,8 @@ Many thanks go to the following [contributors](https://github.com/phlipper/chef-
     * add initial `test-kitchen` support
 * **[@arvidbjorkstrom](https://github.com/arvidbjorkstrom)**
     * Provider for creating/deleting hosts configurations, enabling and disabling them
-    * add `custom_data` attribute to the `site` LWRP
 * **[@perusio](https://github.com/perusio)**
     * Script for enabling and disabling sites, added and renamed by [@arvidbjorkstrom](https://github.com/arvidbjorkstrom)
-* **[@morr](https://github.com/morr)**
-    * update `mime.types` to support web fonts correctly
 
 
 ## License

@@ -1,10 +1,13 @@
+# Server recipe is the only one that installs the package. This means I am
+# testing everthing in one suite. The aim would be to separate the installation
+# so that the tests can also be in their own files.
 require "serverspec"
-
-set :backend, :exec
+include Serverspec::Helper::Exec
+include Serverspec::Helper::DetectOS
 
 describe "nginx::server" do
-  describe package("nginx") do
-    it { should be_installed }
+  it "installed nginx" do
+    expect(package "nginx").to be_installed
   end
 end
 
@@ -120,13 +123,10 @@ describe "nginx::configuration" do
 end
 
 describe "nginx::service" do
-  describe service("nginx") do
-    it { should be_enabled }
-    it { should be_running }
-  end
-
-  describe port(80) do
-    it { should be_listening }
+  it "configured the service" do
+    expect(service "nginx").to be_enabled
+    expect(service "nginx").to be_running
+    expect(port 80).to be_listening
   end
 end
 

@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe "nginx::enabledisablesite" do
   let(:chef_run) do
-    ChefSpec::SoloRunner.new.converge(described_recipe)
+    ChefSpec::Runner.new.converge(described_recipe)
   end
 
   it "creates the `nxensite` script" do
@@ -29,12 +29,12 @@ describe "nginx::enabledisablesite" do
   end
 
   it "creates bash completion `nxendissite`" do
-    completion_file = "/etc/bash_completion.d/nxendissite"
-
     allow(File).to receive(:exist?).with(anything).and_call_original
-    allow(File).to receive(:exist?).with(completion_file).and_return(false)
+    allow(File).to receive(:exist?).with("/etc/bash_completion.d/nxendissite")
+      .and_return(false)
 
-    expect(chef_run).to create_template(completion_file).with(
+    expect(chef_run).to create_template("/etc/bash_completion.d/nxendissite")
+    .with(
       source: "nxendissite_completion.erb",
       owner: "root",
       group: "root",

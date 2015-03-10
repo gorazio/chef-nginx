@@ -1,0 +1,67 @@
+server {
+  listen <%= @listen %> <% if @default %>default_server<% end -%>;
+  <% if not @host.empty? -%>
+  server_name <%= @host %>;
+  <% end -%>
+  root <%= @root %>;
+
+  index <%= @index %>;
+
+<% if not @location.empty? %>
+<% @location.each do |path, params| %>
+  location <%= path %> {
+  <% params.each do |param| %>
+    <%= param %>
+  <% end -%>
+  }
+<% end -%>
+<% end -%>
+
+<% @line_params.each do |param| %>
+  <%= param %>
+<% end -%>
+
+
+  # Prevent access to hidden files
+  location ~ /\. {
+    access_log off; log_not_found off; deny all;
+  }
+
+  <% if @access_log -%>
+  access_log <%= node["nginx"]["log_dir"] %>/<%= @name %>.access.log;
+  <% else -%>
+  access_log off;
+  <% end -%>
+  error_log  <%= node["nginx"]["log_dir"] %>/<%= @name %>.error.log error;
+
+  <% if @phpfpm -%>
+    # Pass all .php files onto a php-fpm/php-fcgi server
+    location ~* \.php$ {
+      # Zero-day exploit defense (http://forum.nginx.org/read.php?2,88845,page=3)
+      try_files $uri = 404;
+
+      # Include common fastcgi params
+      include fastcgi_params;
+
+      # General fastcgi params
+      fastcgi_pass  unix:/var/run/php-fpm-<%= @name %>.sock;
+      fastcgi_index index.php;
+      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
+      # Additional fastcgi params to support PATH_INFO
+      #fastcgi_split_path_info ^(.+\.php)(/.+)$;
+      #fastcgi_param PATH_INFO $fastcgi_path_info;
+      #fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
+
+      # Additional fastcgi params to avoid random 503 errors from nginx
+      fastcgi_connect_timeout 60;
+      fastcgi_send_timeout 180;
+      fastcgi_read_timeout 180;
+      fastcgi_buffer_size 128k;
+      fastcgi_buffers 4 256k;
+      fastcgi_busy_buffers_size 256k;
+      fastcgi_temp_file_write_size 256k;
+      fastcgi_intercept_errors off;
+    }
+  <% end -%>
+}

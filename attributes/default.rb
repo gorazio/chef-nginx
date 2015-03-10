@@ -14,7 +14,7 @@ default["nginx"]["bin_dir"]    = "/usr/sbin"
 default["nginx"]["binary"]     = "/usr/sbin/nginx"
 default["nginx"]["pid_file"]   = "/var/run/nginx.pid"
 default["nginx"]["version"]    = nil
-default["nginx"]["package_name"] = "nginx"  # nginx[-light|full|extras]
+default["nginx"]["package_name"] = "nginx-full"  # nginx[-light|full|extras]
 
 default["nginx"]["log_format"] = <<-FORMAT
   '$remote_addr $host $remote_user [$time_local] "$request" '
@@ -26,7 +26,7 @@ default["nginx"]["daemon_disable"] = false
 default["nginx"]["use_poll"] = true
 
 default["nginx"]["gzip"]              = "on"
-default["nginx"]["gzip_http_version"] = "1.0"
+default["nginx"]["gzip_http_version"] = "1.1"
 default["nginx"]["gzip_buffers"]      = "16 8k"
 default["nginx"]["gzip_comp_level"]   = "2"
 default["nginx"]["gzip_proxied"]      = "any"
@@ -41,7 +41,7 @@ default["nginx"]["gzip_types"]        = %w[
 ]
 
 default["nginx"]["ignore_invalid_headers"]      = "on"
-default["nginx"]["recursive_error_pages"]       = "on"
+default["nginx"]["recursive_error_pages"]       = "off"
 default["nginx"]["sendfile"]                    = "on"
 default["nginx"]["server_name_in_redirect"]     = "off"
 default["nginx"]["server_tokens"]               = "off"
@@ -57,9 +57,9 @@ default["nginx"]["tcp_nopush"]  = "on"
 default["nginx"]["tcp_nodelay"] = "off"
 
 default["nginx"]["proxy_set_headers"] = [
-  "X-Real-IP $remote_addr",
-  "X-Forwarded-For $proxy_add_x_forwarded_for",
-  "Host $http_host"
+  # "X-Real-IP $remote_addr",
+  # "X-Forwarded-For $proxy_add_x_forwarded_for",
+  # "Host $http_host"
 ]
 default["nginx"]["proxy_redirect"] = "off"
 default["nginx"]["proxy_max_temp_file_size"] = nil
@@ -67,9 +67,9 @@ default["nginx"]["proxy_read_timeout"] = nil
 
 default["nginx"]["keepalive"]             = "on"
 default["nginx"]["keepalive_timeout"]     = 65
-default["nginx"]["send_timeout"]          = 5
-default["nginx"]["client_header_timeout"] = 5
-default["nginx"]["client_body_timeout"]   = 5
+default["nginx"]["send_timeout"]          = 60
+default["nginx"]["client_header_timeout"] = 60
+default["nginx"]["client_body_timeout"]   = 60
 
 default["nginx"]["worker_processes"]   = node["cpu"]["total"]
 default["nginx"]["worker_connections"] = node["cpu"]["total"].to_i * 1024
@@ -90,9 +90,9 @@ default["nginx"]["passenger_pool_idle_time"] = 300
 default["nginx"]["enable_stub_status"] = true
 default["nginx"]["status_port"]        = 80
 
-default["nginx"]["skip_default_site"]  = false
+default["nginx"]["default_site"]  = true
 
-default["nginx"]["repository"] = "official"
+default["nginx"]["repository"] = "ppa"
 default["nginx"]["repository_sources"] = {
   "official" => {
     "uri"          => "http://nginx.org/packages/#{node["platform"]}",
@@ -104,7 +104,7 @@ default["nginx"]["repository_sources"] = {
   },
 
   "ppa" => {
-    "uri"          => "http://ppa.launchpad.net/nginx/stable/ubuntu",
+    "uri"          => "http://ppa.launchpad.net/nginx/development/ubuntu",
     "distribution" => node["lsb"]["codename"],
     "components"   => ["main"],
     "keyserver"    => "keyserver.ubuntu.com",

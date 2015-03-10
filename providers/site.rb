@@ -19,14 +19,21 @@ action :create do
     variables(
       name: new_resource.name,
       listen: new_resource.listen,
+      default: new_resource.default,
       host: new_resource.host,
       root: new_resource.root,
       index: new_resource.index,
       location: new_resource.location,
       phpfpm: new_resource.phpfpm,
       access_log: new_resource.access_log,
-      custom_data: new_resource.custom_data
+      line_params: new_resource.line_params
     )
+  end
+
+  firewall_rule "nginx-#{ new_resource.listen }" do
+    port "#{ new_resource.listen }".to_i
+    protocol :tcp
+    action :allow
   end
 end
 
