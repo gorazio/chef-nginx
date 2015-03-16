@@ -76,8 +76,8 @@ logrotate_app 'nginx' do
   rotate    30
   create    '0640 www-data adm'
   options   ['missingok', 'delaycompress', 'notifempty']
-  prerotate '    if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
-      run-parts /etc/logrotate.d/httpd-prerotate; \
-    fi \ '
+  prerotate '    if [ -d /etc/logrotate.d/httpd-prerotate ]; then \\
+      run-parts /etc/logrotate.d/httpd-prerotate; \\
+    fi \\'
   postrotate '    invoke-rc.d nginx rotate >/dev/null 2>&1'
 end
