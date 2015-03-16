@@ -20,8 +20,8 @@ cookbook_file "#{node["nginx"]["dir"]}/mime.types" do
 end
 
 directory node["nginx"]["log_dir"] do
-  owner "root"
-  group "root"
+  owner "www-data"
+  group "adm"
   recursive true
 end
 
