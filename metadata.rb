@@ -4,7 +4,7 @@ maintainer_email "github@phlippers.net"
 license          "MIT"
 description      "Installs/configures nginx"
 long_description "Please refer to README.md"
-version          "3.3.3"
+version          "3.3.4"
 
 recipe "nginx", "The default recipe which sets up the repository."
 recipe "nginx::configuration", "Internal recipe to setup the configuration files."
@@ -14,4 +14,3 @@ recipe "nginx::debug", "Install and configure the `nginx-debug` package."
 
 depends 'apt'
 depends 'logrotate'
-
