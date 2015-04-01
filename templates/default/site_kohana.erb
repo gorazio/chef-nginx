@@ -59,7 +59,7 @@ server {
     include fastcgi_params;
 
     # General fastcgi params
-    fastcgi_pass unix:/var/run/php-fpm-dev_ruazart.sock;
+    fastcgi_pass  unix:/var/run/php-fpm-<%= @name %>.sock;
     fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME $document_root/index.php;
 
