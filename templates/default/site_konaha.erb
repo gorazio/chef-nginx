@@ -1,0 +1,81 @@
+server {
+  listen <%= @listen %> <% if @default %>default_server<% end -%> ;
+  <% if not @host.empty? -%>
+  server_name <%= @host %>;
+  <% end -%>
+  root <%= @root %>;
+
+  <% if @access_log -%>
+  access_log <%= node["nginx"]["log_dir"] %>/<%= @name %>.access.log;
+  <% else -%>
+  access_log off;
+  <% end -%>
+  error_log <%= node["nginx"]["log_dir"] %>/<%= @name %>.error.log error;
+  charset utf-8;
+
+  <% if not @location.empty? %>
+  <% @location.each do |path, params| %>
+  location <%= path %> {
+  <% params.each do |param| %>
+    <%= param %>
+  <% end -%>
+  }
+  <% end -%>
+  <% end -%>
+
+  <% @line_params.each do |param| %>
+  <%= param %>
+  <% end -%>
+
+
+  # Forbid serving .all files or directories
+  location ~* /\. {
+    access_log off;
+    log_not_found off;
+    deny all;
+  }
+
+  # Disable nginx logging for resources
+  location ~* \.(js|css|png|gif|jpg|jpeg|ico|json)$ {
+    expires 30d;
+    access_log off;
+    log_not_found off;
+  }
+
+  location ~* \.php$ {
+    try_files "" @kohana;
+  }
+
+  location / {
+    if ( $http_host = '' ) {
+      return 444;
+    }
+    index index.php;
+    try_files $uri @kohana;
+  }
+
+  location @kohana {
+    # Include common fastcgi params
+    include fastcgi_params;
+
+    # General fastcgi params
+    fastcgi_pass unix:/var/run/php-fpm-dev_ruazart.sock;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+
+    # Additional fastcgi params to support PATH_INFO
+    #fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    #fastcgi_param PATH_INFO $fastcgi_path_info;
+    #fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
+
+    # Additional fastcgi params to avoid random 503 errors from nginx
+    fastcgi_connect_timeout 60;
+    fastcgi_send_timeout 180;
+    fastcgi_read_timeout 180;
+    fastcgi_buffer_size 128k;
+    fastcgi_buffers 4 256k;
+    fastcgi_busy_buffers_size 256k;
+    fastcgi_temp_file_write_size 256k;
+    fastcgi_intercept_errors off;
+  }
+}
