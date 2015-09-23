@@ -4,7 +4,7 @@ maintainer_email "gmail@gorazio.com"
 license          "MIT"
 description      "Installs/configures nginx"
 long_description "Please refer to README.md"
-version          "3.3.10"
+version          "3.3.11"
 
 recipe "nginx", "The default recipe which sets up the repository."
 recipe "nginx::configuration", "Internal recipe to setup the configuration files."

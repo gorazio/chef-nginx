@@ -75,7 +75,7 @@ logrotate_app 'nginx' do
   frequency 'daily'
   rotate    30
   create    '0640 www-data adm'
-  options   ['missingok', 'delaycompress', 'notifempty']
+  options   ['missingok', 'delaycompress', 'compress', 'notifempty']
   prerotate '    if [ -d /etc/logrotate.d/httpd-prerotate ]; then \\
       run-parts /etc/logrotate.d/httpd-prerotate; \\
     fi \\'
